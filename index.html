@@ -249,7 +249,10 @@
                                         <th v-if="hideDetailCols & q.showRMNC">Risk Mgmt</th>
                                         <th v-if="hideDetailCols & q.showASC">ASC</th>
                                         <th v-if="!hideDetailCols">
-                                            {{ratesColTitle}}
+                                            <a v-on:click="forceDetail = !forceDetail"
+                                               class="has-tooltip-arrow has-tooltip-left"
+                                               data-tooltip="Click to expand"
+                                            >{{ratesColTitle}}</a>
                                         </th>
                                         <th>Total</th>
                                     </tr>
@@ -259,7 +262,7 @@
                                             v-for="row in tableData"
                                             :key="row.week"
                                             :style="{'background-color': row.week == q.weeks ?
-                              'rgb(245,245,245, 0.75)' : 'inherit'}"
+                                                    'rgb(245,245,245, 0.75)' : 'inherit'}"
                                             v-if="showAllRows ? true : row.fl"
                                     >
                                         <td>{{row.week}}</td>
@@ -295,6 +298,10 @@
 <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css"
+/>
+<link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tooltip@1.2.0/dist/bulma-tooltip.min.css"
 />
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
 <style>
@@ -370,6 +377,7 @@
             showAllRows: false,
             showASC: false,
             showRMNC: false,
+            forceDetail: false,
             windowDim: [0, 0],
             q: {
                 find: "",
@@ -442,7 +450,8 @@
                 return included.join(', ') + lastItem;
             },
             hideDetailCols: function () {
-                return this.windowDim[0] > 650 + (this.q.showASC ? 75 : 0);
+                let widthNarrow = this.windowDim[0] > 650 + (this.q.showASC ? 75 : 0);
+                return widthNarrow | this.forceDetail
             },
             autoScroll: function () {
                 return this.windowDim[1] < 850;
@@ -560,6 +569,7 @@
                         window.scrollTo(0, 0);
                     }
                     this.tableData = [];
+                    this.forceDetail = false;
                 }, 400);
             },
             updateWidth: function () {
