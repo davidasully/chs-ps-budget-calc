@@ -1,542 +1,612 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
     <title>Personal Services Calculator</title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-  <body>
-    <div id="app" v-cloak>
-      <section class="section">
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+<div id="app" v-cloak>
+    <section class="section">
         <div class="container">
-          <h1 class="title">Personal Services Calculator</h1>
-          <h2 class="subtitle">
-            Easily convert between pay rate, budget goal, and time-frame.
-          </h2>
-          <div
-            v-if="errors.length"
-            class="has-text-danger"
-            style="margin-bottom: 20px"
-          >
-            <b>Please correct the following error(s):</b>
-            <ul>
-              <li v-for="error in errors" class="has-text-danger">
-                {{ error }}
-              </li>
-            </ul>
-          </div>
-          <div class="columns is-multiline">
-            <div class="column is-one-fifth">
-              <div class="field">
-                <label class="label">I'm looking for...</label>
-                <div class="select">
-                  <select v-model="find" style="width: 200px">
-                    <option
-                      v-for="o in findOptions"
-                      :key="o.value"
-                      :value="o.value"
-                      >{{o.name}}
-                    </option>
-                  </select>
-                </div>
-              </div>
+            <h1 class="title">Personal Services Calculator</h1>
+            <h2 class="subtitle">
+                Easily convert between pay rate, budget goal, FTE, and time-frame.
+            </h2>
+            <div
+                    v-if="errors.length"
+                    class="has-text-danger"
+                    style="margin-bottom: 20px"
+            >
+                <b>Please correct the following error(s):</b>
+                <ul>
+                    <li v-for="error in errors" class="has-text-danger">
+                        {{ error }}
+                    </li>
+                </ul>
             </div>
-            <div class="column is-one-fifth">
-              <div class="field">
-                <label class="label">Employee Type</label>
-                <div class="select">
-                  <select v-model="emplType">
-                    <option
-                      v-for="(type, i) in ereRates.map(i => i.name)"
-                      :key="i"
-                      >{{type}}</option
-                    >
-                  </select>
+            <div class="columns is-multiline">
+                <div class="column is-one-fifth">
+                    <div class="field">
+                        <label class="label">I'm looking for...</label>
+                        <div class="select">
+                            <select v-model="find" style="width: 200px">
+                                <option
+                                        v-for="o in findOptions"
+                                        :key="o.value"
+                                        :value="o.value"
+                                >{{o.name}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div class="column is-three-fifths" v-if="find !== 'rate'">
-              <div class="field has-addons">
-                <p class="control">
-                  <label class="label">Frequency</label>
-                  <span class="select">
+                <div class="column is-one-fifth">
+                    <div class="field">
+                        <label class="label">Employee Type</label>
+                        <div class="select">
+                            <select v-model="emplType">
+                                <option
+                                        v-for="(type, i) in ereRates.map(i => i.name)"
+                                        :key="i"
+                                >{{type}}
+                                </option
+                                >
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-three-fifths" v-if="find !== 'rate'">
+                    <div class="field has-addons">
+                        <p class="control">
+                            <label class="label">Frequency</label>
+                            <span class="select">
                     <select v-model="rateType">
                       <option v-for="(type, i) in rateTypeOptions" :key="i"
-                        >{{type}}</option
+                      >{{type}}</option
                       >
                     </select>
                   </span>
-                </p>
-                <p class="control">
-                  <label class="label">Rate</label>
-                  <input
-                    type="text"
-                    :class="{input: true, 'is-danger': e.rate}"
-                    v-model="rate"
-                  />
-                </p>
-              </div>
-            </div>
-            <div class="column is-one-fifth">
-              <div class="field">
-                <label class="label">FTE</label>
-                <div class="control">
-                  <input
-                    type="text"
-                    :class="{input: true, 'is-danger': e.fte}"
-                    style="max-width: 360px;"
-                    v-model="fte"
-                  />
+                        </p>
+                        <p class="control">
+                            <label class="label">Rate</label>
+                            <input
+                                    type="text"
+                                    :class="{input: true, 'is-danger': e.rate}"
+                                    v-model="rate"
+                            />
+                        </p>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div class="column is-one-fifth" v-if="find !== 'weeks'">
-              <div class="field">
-                <label class="label">Weeks</label>
-                <div class="control">
-                  <input
-                    type="text"
-                    :class="{input: true, 'is-danger': e.weeks}"
-                    style="max-width: 360px;"
-                    v-model="weeks"
-                  />
+                <div class="column is-one-fifth" v-if="find !== 'fte'">
+                    <div class="field">
+                        <label class="label">FTE</label>
+                        <div class="control">
+                            <input
+                                    type="text"
+                                    :class="{input: true, 'is-danger': e.fte}"
+                                    style="max-width: 360px;"
+                                    v-model="fte"
+                            />
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div class="column is-one-fifth" v-if="find !== 'budget'">
-              <div class="field">
-                <label class="label">Budget</label>
-                <div class="control">
-                  <input
-                    type="text"
-                    :class="{input: true, 'is-danger': e.budget}"
-                    v-model="budget"
-                  />
+                <div class="column is-one-fifth" v-if="find !== 'weeks'">
+                    <div class="field">
+                        <label class="label">Weeks</label>
+                        <div class="control">
+                            <input
+                                    type="text"
+                                    :class="{input: true, 'is-danger': e.weeks}"
+                                    style="max-width: 360px;"
+                                    v-model="weeks"
+                            />
+                        </div>
+                    </div>
                 </div>
-              </div>
+                <div class="column is-one-fifth" v-if="find !== 'budget'">
+                    <div class="field">
+                        <label class="label">Budget</label>
+                        <div class="control">
+                            <input
+                                    type="text"
+                                    :class="{input: true, 'is-danger': e.budget}"
+                                    v-model="budget"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-full">
+                    <div class="field">
+                        <label class="checkbox">
+                            <input v-model="showASC" type="checkbox"/>
+                            <strong>Include Administrative Service Charge</strong>
+                        </label>
+                    </div>
+                </div>
+                <div class="column is-full" style="margin-top: -15px;">
+                    <div class="field">
+                        <label class="checkbox">
+                            <input v-model="showRMNC" type="checkbox"/>
+                            <strong>Include Risk Management and NetCom</strong>
+                        </label>
+                    </div>
+                </div>
+                <div class="control" style="margin-top: 15px;">
+                    <button class="button is-primary" v-on:click="calculate">
+                        Calculate
+                    </button>
+                </div>
             </div>
-            <div class="column is-full">
-              <div class="field">
-                <label class="checkbox">
-                  <input v-model="showASC" type="checkbox" />
-                  <strong>Include Administrative Service Charge</strong>
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="control">
-            <button class="button is-primary" v-on:click="calculate">
-              Calculate
-            </button>
-          </div>
-          <transition name="fade">
-            <div v-show="q.showResult">
-              <div class="box box-style">
-                <div style="opacity: 0.85;">
-                  <div class="content">
-                    <a
-                      class="delete is-medium is-pulled-right"
-                      style="z-index: 1; position: relative; margin-left: 15px;"
-                      v-on:click="reset"
-                    ></a>
-                    <div v-if="q.find === 'budget'">
-                      <h4 class="title is-4">
-                        What's my
-                        <span class="has-text-weight-bold">total cost</span>
-                        given {{fmtCurrency(q.rate)}} paid {{q.rateType}} at
-                        {{q.fte}} FTE and {{q.emplType}} ERE rate for
-                        {{q.weeks}} weeks {{ascMsg}}?
-                      </h4>
-                      <h3 class="is-3 title">
+            <transition name="fade">
+                <div v-show="q.showResult">
+                    <div class="box box-style">
+                        <div style="opacity: 0.85;">
+                            <div class="content">
+                                <a
+                                        class="delete is-medium is-pulled-right"
+                                        style="z-index: 1; position: relative; margin-left: 15px;"
+                                        v-on:click="reset"
+                                ></a>
+                                <div v-if="q.find === 'budget'">
+                                    <h4 class="title is-4">
+                                        What's my
+                                        <span class="has-text-weight-bold">total cost</span>
+                                        given {{fmtCurrency(q.rate)}} paid {{q.rateType.toLowerCase()}}
+                                        at {{q.fte}} FTE and {{q.emplType.toLowerCase()}} ERE rate for
+                                        {{q.weeks}} weeks {{ascMsg}}?
+                                    </h4>
+                                    <h3 class="is-3 title">
                         <span
-                          >Result:
+                        >Result:
                           <span class="has-text-success"
-                            >{{fmtCurrency(q.budget)}}</span
+                          >{{fmtCurrency(q.budget)}}</span
                           ></span
                         >
-                      </h3>
-                    </div>
-                    <div v-if="q.find === 'rate'">
-                      <h4 class="title is-4">
-                        What's my
-                        <span class="has-text-weight-bold">pay rate</span>
-                        given a budget of {{fmtCurrency(q.budget)}} at {{q.fte}}
-                        FTE and {{q.emplType}} ERE rate for {{q.weeks}} weeks
-                        {{ascMsg}}?
-                      </h4>
-                      <div>
-                        <h5 class="is-5 title is-marginless">
-                          Hourly:
-                          <span class="has-text-success"
-                            >{{fmtCurrency(q.rateH)}}</span
-                          >
-                        </h5>
-                        <h5 class="is-5 title is-marginless">
-                          Bi-weekly:
-                          <span class="has-text-success"
-                            >{{fmtCurrency(q.rateH * q.fte * 80)}}</span
-                          >
-                        </h5>
-                        <h5 class="is-5 title is-marginless">
-                          Annually:
-                          <span class="has-text-success"
-                            >{{fmtCurrency(q.rateH * q.fte * 2080)}}</span
-                          >
-                        </h5>
-                      </div>
-                    </div>
-                    <div v-if="q.find === 'weeks'">
-                      <h4 class="title is-4">
-                        How many
-                        <span class="has-text-weight-bold">weeks</span> can be
-                        worked given {{fmtCurrency(q.rate)}} pay {{q.rateType}}
-                        at {{q.fte}} FTE and {{q.emplType}} ERE rate until the
-                        budget of {{fmtCurrency(q.budget)}} is reached
-                        {{ascMsg}}?
-                      </h4>
-                      <h3 class="is-3 title">
+                                    </h3>
+                                </div>
+                                <div v-if="q.find === 'fte'">
+                                    <h4 class="title is-4">
+                                        What's my
+                                        <span class="has-text-weight-bold">FTE</span>
+                                        given a budget of {{fmtCurrency(q.budget)}}, pay rate of
+                                        {{fmtCurrency(q.rate)}} {{q.rateType.toLowerCase()}} and
+                                        {{q.emplType.toLowerCase()}} ERE for {{q.weeks}} weeks {{ascMsg}}?
+                                    </h4>
+                                    <h3 class="is-3 title">
                         <span
-                          >Result:
+                        >Result:
                           <span class="has-text-success"
-                            >{{q.weeks}}</span
+                          >{{q.fte.toFixed(2)}}</span
                           ></span
                         >
-                      </h3>
-                    </div>
-                  </div>
-                  <hr />
-                  <h4 class="title is-4">
-                    Weekly Breakdown (Cummulative)
-                  </h4>
-                  <div class="table-container">
-                    <table
-                      class="table is-fullwidth is-bordered"
-                      style="background-color: inherit;"
-                    >
-                      <thead>
-                        <tr>
-                          <th>Week #</th>
-                          <th>Pay</th>
-                          <th v-if="hideDetailCols">ERE</th>
-                          <th v-if="hideDetailCols">Netcomm</th>
-                          <th v-if="hideDetailCols">Risk Mgmt</th>
-                          <th v-if="hideDetailCols & q.showASC">ASC</th>
-                          <th v-if="!hideDetailCols">
-                            {{q.showASC ? 'ERE, NC, RM & ASC': 'ERE, NC & RM'}}
-                          </th>
-                          <th>Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr
-                          v-for="row in tableData"
-                          :key="row.week"
-                          :style="{'background-color': row.week == q.weeks ? 
+                                    </h3>
+                                </div>
+                                <div v-if="q.find === 'rate'">
+                                    <h4 class="title is-4">
+                                        What's my
+                                        <span class="has-text-weight-bold">pay rate</span>
+                                        given a budget of {{fmtCurrency(q.budget)}} at {{q.fte}}
+                                        FTE and {{q.emplType.toLowerCase()}} ERE rate for {{q.weeks}}
+                                        weeks {{ascMsg}}?
+                                    </h4>
+                                    <div>
+                                        <h5 class="is-5 title is-marginless">
+                                            Hourly:
+                                            <span class="has-text-success"
+                                            >{{fmtCurrency(q.rateH)}}</span
+                                            >
+                                        </h5>
+                                        <h5 class="is-5 title is-marginless">
+                                            Bi-weekly:
+                                            <span class="has-text-success"
+                                            >{{fmtCurrency(q.rateH * q.fte * 80)}}</span
+                                            >
+                                        </h5>
+                                        <h5 class="is-5 title is-marginless">
+                                            Annually:
+                                            <span class="has-text-success"
+                                            >{{fmtCurrency(q.rateH * q.fte * 2080)}}</span
+                                            >
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div v-if="q.find === 'weeks'">
+                                    <h4 class="title is-4">
+                                        How many
+                                        <span class="has-text-weight-bold">weeks</span> can be
+                                        worked given {{fmtCurrency(q.rate)}} pay {{q.rateType.toLowerCase()}}
+                                        at {{q.fte}} FTE and {{q.emplType.toLowerCase()}} ERE rate until the
+                                        budget of {{fmtCurrency(q.budget)}} is reached {{ascMsg}}?
+                                    </h4>
+                                    <h3 class="is-3 title">
+                        <span
+                        >Result:
+                          <span class="has-text-success"
+                          >{{q.weeks}}</span
+                          ></span
+                        >
+                                    </h3>
+                                </div>
+                            </div>
+                            <hr/>
+                            <h4 class="title is-4">
+                                Weekly Breakdown (Cummulative)
+                            </h4>
+                            <div class="table-container">
+                                <table
+                                        class="table is-fullwidth is-bordered"
+                                        style="background-color: inherit;"
+                                >
+                                    <thead>
+                                    <tr>
+                                        <th>Week #</th>
+                                        <th>Pay</th>
+                                        <th v-if="hideDetailCols">ERE</th>
+                                        <th v-if="hideDetailCols & q.showRMNC">NetCom</th>
+                                        <th v-if="hideDetailCols & q.showRMNC">Risk Mgmt</th>
+                                        <th v-if="hideDetailCols & q.showASC">ASC</th>
+                                        <th v-if="!hideDetailCols">
+                                            {{ratesColTitle}}
+                                        </th>
+                                        <th>Total</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr
+                                            v-for="row in tableData"
+                                            :key="row.week"
+                                            :style="{'background-color': row.week == q.weeks ?
                               'rgb(245,245,245, 0.75)' : 'inherit'}"
-                          v-if="showAllRows ? true : row.fl"
-                        >
-                          <td>{{row.week}}</td>
-                          <td>{{fmtFixed(row.cumm)}}</td>
-                          <td v-if="hideDetailCols">{{fmtFixed(row.ere)}}</td>
-                          <td v-if="hideDetailCols">{{fmtFixed(row.rm)}}</td>
-                          <td v-if="hideDetailCols">{{fmtFixed(row.nc)}}</td>
-                          <td v-if="hideDetailCols & q.showASC">
-                            {{fmtFixed(row.asc)}}
-                          </td>
-                          <td v-if="!hideDetailCols">
-                            {{fmtFixed(row.ratesTotal)}}
-                          </td>
-                          <td>{{fmtFixed(row.total)}}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <a v-on:click="showAllRows = !showAllRows"
-                    >Toggle intermediate rows
-                    <span class="is-family-monospace has-text-weight-semibold"
-                      >{{'[' + (showAllRows ? '-': '+') + ']'}}</span
-                    ></a
-                  >
+                                            v-if="showAllRows ? true : row.fl"
+                                    >
+                                        <td>{{row.week}}</td>
+                                        <td>{{fmtFixed(row.cumm)}}</td>
+                                        <td v-if="hideDetailCols">{{fmtFixed(row.ere)}}</td>
+                                        <td v-if="hideDetailCols & q.showRMNC">{{fmtFixed(row.rm)}}</td>
+                                        <td v-if="hideDetailCols & q.showRMNC">{{fmtFixed(row.nc)}}</td>
+                                        <td v-if="hideDetailCols & q.showASC">
+                                            {{fmtFixed(row.asc)}}
+                                        </td>
+                                        <td v-if="!hideDetailCols">
+                                            {{fmtFixed(row.ratesTotal)}}
+                                        </td>
+                                        <td>{{fmtFixed(row.total)}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <a v-on:click="showAllRows = !showAllRows"
+                            >Toggle intermediate rows
+                                <span class="is-family-monospace has-text-weight-semibold"
+                                >{{'[' + (showAllRows ? '-': '+') + ']'}}</span
+                                ></a
+                            >
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </transition>
+            </transition>
         </div>
-      </section>
-    </div>
+    </section>
+</div>
 
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
-    <style>
-      [v-cloak] {
+<link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+<style>
+    [v-cloak] {
         display: none;
-      }
-      .button.is-primary {
+    }
+
+    .button.is-primary {
         background-color: #8C1D40;
-      }
-      .button.is-primary:hover,
-      .button.is-primary:focus {
+    }
+
+    .button.is-primary:hover,
+    .button.is-primary:focus {
         background-color: #76233d;
-      }
-      .box-style {
+    }
+
+    .box-style {
         margin-top: 30px;
         padding: 40px 40px;
         background-color: #ffffe6;
         max-width: 850px;
-      }
-      hr {
+    }
+
+    hr {
         /*border: 3px solid #fff2cc;*/
         margin: 40px -15px;
         border-radius: 50px;
         opacity: 0.75;
-      }
-      .fade-enter-active,
-      .fade-leave-active {
-        transition: opacity 0.5s;
-      }
-      .fade-enter,
-      .fade-leave-to {
-        opacity: 0;
-      }
-    </style>
+    }
 
-    <script>
-      var app = new Vue({
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: opacity 0.5s;
+    }
+
+    .fade-enter,
+    .fade-leave-to {
+        opacity: 0;
+    }
+</style>
+
+<script>
+    var app = new Vue({
         el: "#app",
         data: {
-          budget: 1000,
-          rate: 10,
-          find: "budget",
-          findOptions: [
-            { name: "Total Cost", value: "budget" },
-            { name: "Pay Rate", value: "rate" },
-            { name: "Time Length", value: "weeks" }
-          ],
-          weeks: 5,
-          fte: 1,
-          rateType: "Hourly",
-          rateTypeOptions: ["Hourly", "Bi-Weekly", "Annually"],
-          emplType: "Staff",
-          ereRates: [
-            { name: "Staff", rate: 0.33 },
-            { name: "Faculty", rate: 0.263 },
-            { name: "Student", rate: 0.015 },
-            { name: "GSA", rate: 0.015 },
-            { name: "RA/TA", rate: 0.1 },
-            { name: "Post Doctoral", rate: 0.21 },
-            { name: "Non-Benefit Eligible", rate: 0.094 }
-          ],
-          rmRate: 0.011,
-          ncRate: 0.0165,
-          ascRate: 0.085,
-          tableData: [],
-          showAllRows: false,
-          showASC: false,
-          windowDim: [0, 0],
-          q: {
-            find: "",
-            rate: 0,
-            rateH: 0,
-            budget: 0,
-            weeks: 0,
-            fte: 0,
-            emplType: "",
-            rateType: "",
+            budget: 1000,
+            rate: 10,
+            find: "budget",
+            findOptions: [
+                {name: "FTE", value: "fte"},
+                {name: "Pay Rate", value: "rate"},
+                {name: "Time Length", value: "weeks"},
+                {name: "Total Cost", value: "budget"}
+            ],
+            weeks: 5,
+            fte: 1,
+            rateType: "Hourly",
+            rateTypeOptions: ["Hourly", "Bi-Weekly", "Annually"],
+            emplType: "Staff",
+            ereRates: [
+                {name: "Staff", rate: 0.33},
+                {name: "Faculty", rate: 0.263},
+                {name: "Student", rate: 0.015},
+                {name: "GSA", rate: 0.015},
+                // { name: "RA/TA", rate: 0.1 },
+                {name: "Post Doctoral", rate: 0.21},
+                {name: "Non-Benefit Eligible", rate: 0.094}
+            ],
+            rmRate: 0.011,
+            ncRate: 0.0165,
+            ascRate: 0.085,
+            tableData: [],
+            showAllRows: false,
             showASC: false,
-            showResult: false
-          },
-          errors: [],
-          e: { budget: false, rate: false, weeks: false, fte: false }
+            showRMNC: false,
+            windowDim: [0, 0],
+            q: {
+                find: "",
+                rate: 0,
+                rateH: 0,
+                budget: 0,
+                weeks: 0,
+                fte: 0,
+                emplType: "",
+                rateType: "",
+                showASC: false,
+                showRMNC: true,
+                showResult: false
+            },
+            errors: [],
+            e: {budget: false, rate: false, weeks: false, fte: false}
         },
         mounted() {
-          this.$nextTick(() => {
-            this.updateWidth();
-            window.addEventListener("resize", this.updateWidth);
-          });
+            this.$nextTick(() => {
+                this.updateWidth();
+                window.addEventListener("resize", this.updateWidth);
+            });
         },
         beforeDestroy() {
-          window.removeEventListener("resize", this.updateWidth);
+            window.removeEventListener("resize", this.updateWidth);
         },
         computed: {
-          weekList: function() {
-            return Array.from(Array(Number(this.weeks)), (e, i) => i + 1);
-          },
-          ereRate: function() {
-            return this.ereRates.filter(i => i["name"] === this.emplType)[0][
-              "rate"
-            ];
-          },
-          ereTotal: function() {
-            return this.ereRate + this.rmRate + this.ncRate;
-          },
-          hourlyRate: function() {
-            let rate = this.rate;
-            if (this.rateType === "Bi-Weekly") {
-              rate = rate / (this.fte * 80);
+            weekList: function () {
+                return Array.from(Array(Number(this.weeks)), (e, i) => i + 1);
+            },
+            ereRate: function () {
+                return this.ereRates.filter(i => i["name"] === this.emplType)[0][
+                    "rate"
+                    ];
+            },
+            ereTotal: function () {
+                return this.ereRate + (this.showRMNC ? this.rmRate + this.ncRate : 0);
+            },
+            hourlyRate: function () {
+                let rate = this.rate;
+                if (this.rateType === "Bi-Weekly") {
+                    rate = rate / (this.fte * 80);
+                }
+                if (this.rateType === "Annually") {
+                    rate = rate / (this.fte * 2080);
+                }
+                return rate;
+            },
+            ascMsg: function () {
+                if (this.q.showRMNC === this.q.showASC) {
+                    return "(" + (this.q.showASC ? "including" : "excluding") + " ASC and RM/NC)";
+                } else {
+                    let inc = this.q.showASC ? 'ASC' : 'RM/NC';
+                    let exl = !this.q.showASC ? 'ASC' : 'RM/NC';
+                    return `(inc ${inc}, but excl ${exl})`;
+                }
+            },
+            ratesColTitle: function () {
+                let lastItem = '';
+                let included = ['ERE'];
+                if (this.q.showRMNC) {
+                    included = [...included, ...['RM', 'NC']]
+                }
+                if (this.q.showASC) {
+                    included.push('ASC');
+                }
+                if (included.length > 1) {
+                    lastItem = ' & ' + included.pop();
+                }
+                return included.join(', ') + lastItem;
+            },
+            hideDetailCols: function () {
+                return this.windowDim[0] > 650 + (this.q.showASC ? 75 : 0);
+            },
+            autoScroll: function () {
+                return this.windowDim[1] < 850;
             }
-            if (this.rateType === "Annually") {
-              rate = rate / (this.fte * 2080);
-            }
-            return rate;
-          },
-          ascMsg: function() {
-            return "(" + (this.q.showASC ? "including" : "excluding") + " ASC)";
-          },
-          hideDetailCols: function() {
-            return this.windowDim[0] > 650 + (this.q.showASC ? 75 : 0);
-          },
-          autoScroll: function() {
-            return this.windowDim[1] < 850;
-          }
         },
         methods: {
-          calculate: function() {
-            if (this.find === "rate") {
-              this.rate = this.getRate();
-            }
-            if (this.find === "weeks") {
-              this.weeks = this.getWeeks();
-            }
-            if (this.checkForm()) {
-              this.genTableData();
+            calculate: function () {
+                if (this.find === "rate") {
+                    this.rate = this.getRate();
+                }
+                if (this.find === "weeks") {
+                    this.weeks = this.getWeeks();
+                }
+                if (this.find === "fte") {
+                    this.fte = this.getFTE();
+                }
+                if (this.checkForm()) {
+                    this.genTableData();
 
-              if (this.find === "budget") {
-                this.budget = this.tableData[0]["total"];
-              }
+                    if (this.find === "budget") {
+                        this.budget = this.tableData[0]["total"];
+                    }
 
-              this.q.find = this.find;
-              this.q.rate = this.rate;
-              this.q.rateH = this.hourlyRate;
-              this.q.budget = this.budget;
-              this.q.weeks = this.weeks;
-              this.q.fte = this.fte;
-              this.q.emplType = this.emplType;
-              this.q.rateType = this.rateType;
-              this.q.showASC = this.showASC;
+                    this.q.find = this.find;
+                    this.q.rate = this.rate;
+                    this.q.rateH = this.hourlyRate;
+                    this.q.budget = this.budget;
+                    this.q.weeks = this.weeks;
+                    this.q.fte = this.fte;
+                    this.q.emplType = this.emplType;
+                    this.q.rateType = this.rateType;
+                    this.q.showRMNC = this.showRMNC;
+                    this.q.showASC = this.showASC;
 
-              this.q.showResult = true;
+                    this.q.showResult = true;
 
-              if (this.autoScroll) {
-                setTimeout(() => {
-                  window.scrollTo(0, document.body.scrollHeight);
-                }, 400);
-              }
-            }
-          },
-          genTableData: function() {
-            let cumm = this.weekList.map(
-              i => i * this.hourlyRate * 40 * this.fte
-            );
-            this.tableData = this.weekList
-              .map((week, i) => {
-                return {
-                  week: week,
-                  cumm: cumm[i],
-                  ere: cumm[i] * this.ereRate,
-                  rm: cumm[i] * this.rmRate,
-                  nc: cumm[i] * this.ncRate,
-                  fl: (i === 0) | (i === cumm.length - 1)
-                };
-              })
-              .map(i => {
-                i["subtotal"] = i.cumm + i.ere + i.rm + i.nc;
-                i["asc"] = this.showASC ? i.subtotal * this.ascRate : 0;
-                i["ratesTotal"] = i.ere + i.rm + i.nc + i.asc;
-                i["total"] = i.subtotal + i.asc;
-                return i;
-              })
-              .reverse();
-          },
-          getRate: function() {
-            let t = this.weeks * 40 * this.fte;
-            let num = this.showASC
-              ? this.budget / (this.ascRate + 1)
-              : this.budget;
-            let denom = t + t * this.ereTotal;
-            return num / denom;
-          },
-          getWeeks: function() {
-            let tx = 40 * this.fte;
-            let num = this.showASC
-              ? this.budget / (this.ascRate + 1)
-              : this.budget;
-            let denom = (1 + this.ereTotal) * tx * this.hourlyRate;
-            return Math.floor(num / denom);
-          },
-          fmtFixed: function(n) {
-            return Number(n)
-              .toFixed(2)
-              .replace(/\d(?=(\d{3})+\.)/g, "$&,");
-          },
-          fmtCurrency: function(n) {
-            return "$" + this.fmtFixed(n);
-          },
-          reset: function() {
-            this.q.showResult = false;
-
-            this.budget = 1000;
-            this.rate = 10;
-            this.weeks = 5;
-            this.fte = 1;
-            this.rateType = "Hourly";
-            this.showASC = false;
-            this.errors = [];
-
-            setTimeout(() => {
-              if (this.autoScroll) {
-                window.scrollTo(0, 0);
-              }
-              this.tableData = [];
-            }, 400);
-          },
-          updateWidth: function() {
-            this.windowDim = [window.innerWidth, window.innerHeight];
-          },
-          checkForm: function() {
-            this.errors = [];
-            this.e = Object.assign(
-              {},
-              { budget: false, rate: false, weeks: false, fte: false }
-            );
-            if (this.find !== "rate") {
-              if (!Number(this.rate) || this.rate < 0) {
-                this.errors.push("Pay rate must be greater than zero.");
-                this.e.rate = true;
-              }
-            }
-            if (this.find !== "budget") {
-              if (!Number(this.budget) || this.budget < 0) {
-                this.errors.push("Budget must be greater than zero.");
-                this.e.budget = true;
-              }
-            }
-            if (this.find !== "weeks") {
-              if (
-                !Number(this.weeks) ||
-                !Number.isInteger(Number(this.weeks)) ||
-                this.weeks < 0
-              ) {
-                this.errors.push(
-                  "Weeks must be a whole number greater than zero."
+                    if (this.autoScroll) {
+                        setTimeout(() => {
+                            window.scrollTo(0, document.body.scrollHeight);
+                        }, 400);
+                    }
+                }
+            },
+            genTableData: function () {
+                let cumm = this.weekList.map(
+                    i => i * this.hourlyRate * 40 * this.fte
                 );
-                this.e.weeks = true;
-              }
+                this.tableData = this.weekList
+                    .map((week, i) => {
+                        return {
+                            week: week,
+                            cumm: cumm[i],
+                            ere: cumm[i] * this.ereRate,
+                            rm: cumm[i] * this.rmRate,
+                            nc: cumm[i] * this.ncRate,
+                            fl: (i === 0) | (i === cumm.length - 1)
+                        };
+                    })
+                    .map(i => {
+                        i["rmnc"] = this.showRMNC ? i.rm + i.nc : 0;
+                        i["subtotal"] = i.cumm + i.ere + i.rmnc;
+                        i["asc"] = this.showASC ? i.subtotal * this.ascRate : 0;
+                        i["ratesTotal"] = i.ere + i.rmnc + i.asc;
+                        i["total"] = i.subtotal + i.asc;
+                        return i;
+                    })
+                    .reverse();
+            },
+            getRate: function () {
+                let t = this.weeks * 40 * this.fte;
+                let num = this.showASC
+                    ? this.budget / (this.ascRate + 1)
+                    : this.budget;
+                let denom = t + t * this.ereTotal;
+                return num / denom;
+            },
+            getWeeks: function () {
+                let tx = 40 * this.fte;
+                let num = this.showASC
+                    ? this.budget / (this.ascRate + 1)
+                    : this.budget;
+                let denom = (1 + this.ereTotal) * tx * this.hourlyRate;
+                return Math.floor(num / denom);
+            },
+            getFTE: function () {
+                let tx = this.hourlyRate * this.weeks * 40;
+                let num = this.showASC
+                    ? this.budget / (this.ascRate + 1)
+                    : this.budget;
+                let denom = tx * (1 + this.ereTotal);
+                return num / denom
+            },
+            fmtFixed: function (n) {
+                return Number(n)
+                    .toFixed(2)
+                    .replace(/\d(?=(\d{3})+\.)/g, "$&,");
+            },
+            fmtCurrency: function (n) {
+                return "$" + this.fmtFixed(n);
+            },
+            reset: function () {
+                this.q.showResult = false;
+
+                this.budget = 1000;
+                this.rate = 10;
+                this.weeks = 5;
+                this.fte = 1;
+                this.rateType = "Hourly";
+                this.showASC = false;
+                this.showRMNC = false;
+                this.errors = [];
+
+                setTimeout(() => {
+                    if (this.autoScroll) {
+                        window.scrollTo(0, 0);
+                    }
+                    this.tableData = [];
+                }, 400);
+            },
+            updateWidth: function () {
+                this.windowDim = [window.innerWidth, window.innerHeight];
+            },
+            checkForm: function () {
+                this.errors = [];
+                this.e = Object.assign(
+                    {},
+                    {budget: false, rate: false, weeks: false, fte: false}
+                );
+                if (this.find !== "rate") {
+                    if (!Number(this.rate) || this.rate < 0) {
+                        this.errors.push("Pay rate must be greater than zero.");
+                        this.e.rate = true;
+                    }
+                }
+                if (this.find !== "budget") {
+                    if (!Number(this.budget) || this.budget < 0) {
+                        this.errors.push("Budget must be greater than zero.");
+                        this.e.budget = true;
+                    }
+                }
+                if (this.find !== "weeks") {
+                    if (
+                        !Number(this.weeks) ||
+                        !Number.isInteger(Number(this.weeks)) ||
+                        this.weeks < 0
+                    ) {
+                        this.errors.push(
+                            "Weeks must be a whole number greater than zero."
+                        );
+                        this.e.weeks = true;
+                    }
+                }
+                if (this.find !== "fte") {
+                    if (!Number(this.fte) || this.fte < 0 || this.fte > 1) {
+                        this.errors.push(
+                            "FTE must be greater than zero and less than or equal to 1."
+                        );
+                        this.e.fte = true;
+                    }
+                }
+                return !this.errors.length;
             }
-            if (!Number(this.fte) || this.fte < 0 || this.fte > 1) {
-              this.errors.push(
-                "FTE must be greater than zero and less than or equal to 1."
-              );
-              this.e.fte = true;
-            }
-            return !this.errors.length;
-          }
         }
-      });
-    </script>
-  </body>
+    });
+</script>
+</body>
 </html>
