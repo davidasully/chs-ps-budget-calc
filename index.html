@@ -71,7 +71,7 @@
                   </span>
                         </p>
                         <p class="control">
-                            <label class="label">Rate</label>
+                            <label class="label">Rate (at 1 FTE)</label>
                             <input
                                     type="text"
                                     :class="{input: true, 'is-danger': e.rate}"
@@ -421,10 +421,10 @@
             hourlyRate: function () {
                 let rate = this.rate;
                 if (this.rateType === "Bi-Weekly") {
-                    rate = rate / (this.fte * 80);
+                    rate = rate / 80;
                 }
                 if (this.rateType === "Annually") {
-                    rate = rate / (this.fte * 2080);
+                    rate = rate / 2080;
                 }
                 return rate;
             },
